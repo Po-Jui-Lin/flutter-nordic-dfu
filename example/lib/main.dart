@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_nordic_dfu/flutter_nordic_dfu.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_nordic_dfu/flutter_nordic_dfu.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     stopScan();
     dfuRunning = true;
     try {
-      var s = await FlutterNordicDfu.startDfu(
+      final s = await FlutterNordicDfu.startDfu(
         deviceId,
         'assets/file.zip',
         fileInAsset: true,
@@ -40,14 +40,14 @@ class _MyAppState extends State<MyApp> {
           currentPart,
           partsTotal,
         ) {
-          print('deviceAddress: $deviceAddress, percent: $percent');
+          debugPrint('deviceAddress: $deviceAddress, percent: $percent');
         }),
       );
-      print(s);
+      debugPrint(s);
       dfuRunning = false;
     } catch (e) {
       dfuRunning = false;
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final isScanning = scanSubscription != null;
-    final hasDevice = scanResults.length > 0;
+    final hasDevice = scanResults.isNotEmpty;
 
     return MaterialApp(
       home: Scaffold(
@@ -90,18 +90,18 @@ class _MyAppState extends State<MyApp> {
           actions: <Widget>[
             isScanning
                 ? IconButton(
-                    icon: Icon(Icons.pause_circle_filled),
+                    icon: const Icon(Icons.pause_circle_filled),
                     onPressed: dfuRunning ? null : stopScan,
                   )
                 : IconButton(
-                    icon: Icon(Icons.play_arrow),
+                    icon: const Icon(Icons.play_arrow),
                     onPressed: dfuRunning ? null : startScan,
                   )
           ],
         ),
         body: !hasDevice
             ? const Center(
-                child: const Text('No device'),
+                child: Text('No device'),
               )
             : ListView.separated(
                 padding: const EdgeInsets.all(8),
@@ -114,9 +114,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _deviceItemBuilder(BuildContext context, int index) {
-    var result = scanResults[index];
+    final result = scanResults[index];
     return DeviceItem(
-      isRunningItem: (dfuRunningInx == null ? false : dfuRunningInx == index),
+      isRunningItem: dfuRunningInx == null ? false : dfuRunningInx == index,
       scanResult: result,
       onPress: dfuRunning
           ? () async {
@@ -144,7 +144,7 @@ class ProgressListenerListener extends DfuProgressListenerAdapter {
       double avgSpeed, int currentPart, int partsTotal) {
     super.onProgressChanged(
         deviceAddress, percent, speed, avgSpeed, currentPart, partsTotal);
-    print('deviceAddress: $deviceAddress, percent: $percent');
+    debugPrint('deviceAddress: $deviceAddress, percent: $percent');
   }
 }
 
@@ -155,12 +155,12 @@ class DeviceItem extends StatelessWidget {
 
   final bool isRunningItem;
 
-  DeviceItem({this.scanResult, this.onPress, this.isRunningItem});
+  const DeviceItem({this.scanResult, this.onPress, this.isRunningItem});
 
   @override
   Widget build(BuildContext context) {
     var name = "Unknow";
-    if (scanResult.device.name != null && scanResult.device.name.length > 0) {
+    if (scanResult.device.name != null && scanResult.device.name.isNotEmpty) {
       name = scanResult.device.name;
     }
     return Card(
@@ -168,7 +168,7 @@ class DeviceItem extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: <Widget>[
-            Icon(Icons.bluetooth),
+            const Icon(Icons.bluetooth),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +181,7 @@ class DeviceItem extends StatelessWidget {
             ),
             TextButton(
                 onPressed: onPress,
-                child: isRunningItem ? Text("Abort Dfu") : Text("Start Dfu"))
+                child: isRunningItem ? const Text("Abort Dfu") : const Text("Start Dfu"))
           ],
         ),
       ),
