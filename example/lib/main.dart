@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
     try {
       final s = await FlutterNordicDfu.startDfu(
         deviceId,
-        'assets/file.zip',
+        'assets/ultron_door_pkg.zip',
         fileInAsset: true,
         progressListener:
             DefaultDfuProgressListenerAdapter(onProgressChangedHandle: (
@@ -63,6 +63,9 @@ class _MyAppState extends State<MyApp> {
               null) {
             return;
           }
+
+          debugPrint(scanResult.toString());
+
           setState(() {
             /// add result to results if not added
             scanResults.add(scanResult);
@@ -99,6 +102,7 @@ class _MyAppState extends State<MyApp> {
                   )
           ],
         ),
+        // todo: remove this reversed logic?
         body: !hasDevice
             ? const Center(
                 child: Text('No device'),
@@ -181,7 +185,9 @@ class DeviceItem extends StatelessWidget {
             ),
             TextButton(
                 onPressed: onPress,
-                child: isRunningItem ? const Text("Abort Dfu") : const Text("Start Dfu"))
+                child: isRunningItem
+                    ? const Text("Abort Dfu")
+                    : const Text("Start Dfu"))
           ],
         ),
       ),
